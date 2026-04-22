@@ -1,0 +1,12 @@
+{
+    "name": "saf-haxe",
+    "url": "https://github.com/ChanceXML/saf-haxe",
+    "license": "MIT",
+    "tags": ["android", "saf", "lime", "haxe", "storage"],
+    "description": "Streamlined Storage Access Framework for Lime/OpenFL",
+    "version": "1.0.0",
+    "classPath": "",
+    "dependencies": {
+        "lime": "*"
+    }
+}
