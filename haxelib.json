@@ -1,6 +1,6 @@
 {
-    "name": "saf-haxe",
-    "url": "https://github.com/ChanceXML/saf-haxe",
+    "name": "extension-androidsaf",
+    "url": "https://github.com/ChanceXML/extension-androidsaf",
     "license": "MIT",
     "tags": ["android", "saf", "lime", "haxe", "storage"],
     "description": "Streamlined Storage Access Framework for Lime/OpenFL",
