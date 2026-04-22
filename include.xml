@@ -2,6 +2,7 @@
 <project>
     <section if="android">
         <dependency name="androidx.documentfile:documentfile:1.0.1" />
+        <android.dependency name="androidx.documentfile:documentfile:1.0.1" />
         <dependency name="androidx.core:core:1.6.0" />
         
         <java path="dependencies/saf-extension/src/main/java" />
