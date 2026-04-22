@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+    <section if="android">
+        <dependency name="androidx.documentfile:documentfile:1.0.1" />
+        <dependency name="androidx.core:core:1.6.0" />
+        
+        <java path="dependencies/saf-extension/src/main/java" />
+        
+        <android permission="android.permission.READ_EXTERNAL_STORAGE" />
+        <android permission="android.permission.WRITE_EXTERNAL_STORAGE" />
+    </section>
+</project>
