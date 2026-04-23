@@ -50,14 +50,26 @@ class SAF {
     }
     
     public static function copyToInternal(uri:String, dest:String):Bool {
-        #if android
+    #if android
+    try {
+        if (_copyToInternal == null) {
+            _copyToInternal = JNI.createStaticMethod(
+                "extension/saf/SAFHelper",
+                "copyToInternal",
+                "(Ljava/lang/String;Ljava/lang/String;)Z"
+            );
+        }
+        if (_copyToInternal == null) return false;
+
         return _copyToInternal(uri, dest);
-        #else
+    } catch (e:Dynamic) {
         return false;
-        #end
+    }
+    #else
+    return false;
+    #end
     }
 }
-
 @:keep
 class SAFCallback {
     var cb_ok:String->Void;
