@@ -11,13 +11,22 @@ public class SAFHelper extends Extension {
     private static HaxeObject callback;
     private static final int REQ_CODE = 4001;
 
-    public static void openSAF(HaxeObject haxeCallback) {
+    public static void openSAF(final HaxeObject haxeCallback) {
         callback = haxeCallback;
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        Extension.mainActivity.startActivityForResult(intent, REQ_CODE);
+        Extension.mainActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    Extension.mainActivity.startActivityForResult(intent, REQ_CODE);
+                } catch (Exception e) {
+                    if (callback != null) callback.call("onError", new Object[]{e.getMessage()});
+                }
+            }
+        });
     }
 
     @Override
@@ -27,17 +36,17 @@ public class SAFHelper extends Extension {
                 Uri uri = data.getData();
                 if (uri != null) {
                     int flags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
-                    Extension.mainContext.getContentResolver().takePersistableUriPermission(uri, flags);
-                    if (callback != null) callback.call1("onResult", uri.toString());
+                    Extension.mainActivity.getContentResolver().takePersistableUriPermission(uri, flags);
+                    if (callback != null) callback.call("onResult", new Object[]{uri.toString()});
                 }
             } else {
-                if (callback != null) callback.call1("onError", "User cancelled");
+                if (callback != null) callback.call("onError", new Object[]{"User cancelled"});
             }
             return true;
         }
         return super.onActivityResult(requestCode, resultCode, data);
     }
-
+    
     public static String[] listFiles(String uriString) {
         Uri uri = Uri.parse(uriString);
         DocumentFile dir = DocumentFile.fromTreeUri(Extension.mainContext, uri);
