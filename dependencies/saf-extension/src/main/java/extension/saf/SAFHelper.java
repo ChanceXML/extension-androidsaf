@@ -7,6 +7,11 @@ import androidx.documentfile.provider.DocumentFile;
 import org.haxe.extension.Extension;
 import org.haxe.lime.HaxeObject;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
+import java.io.File;
+
 public class SAFHelper extends Extension {
     private static HaxeObject callback;
     private static final int REQ_CODE = 4001;
