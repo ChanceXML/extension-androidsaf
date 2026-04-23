@@ -1,3 +1,2 @@
-# Extension android-saf
-A Easier Way To Communicate To Android Storage Access Framework.
----
+# this is for my psych engine
+not for anything else. may use it for other stuff tho
