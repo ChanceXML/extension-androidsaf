@@ -6,7 +6,7 @@ import lime.system.JNI;
 
 class SAF {
     #if android
-    private static var _copyToInternal:Dynamic;
+    private static var _copyToInternal:Dynamic = null;
     private static var _open_jni:Dynamic = null;
     private static var _list_jni:Dynamic = null;
     private static var _currentCallback:SAFCallback = null;
@@ -23,6 +23,8 @@ class SAF {
         } catch(e:Dynamic) {
             if (onError != null) onError(Std.string(e));
         }
+        #else
+        if (onError != null) onError("SAF is only supported on Android");
         #end
     }
 
@@ -36,9 +38,11 @@ class SAF {
             
             var nativeArray:Dynamic = _list_jni(uriString);
             var hxArray:Array<String> = [];
+            
             if (nativeArray != null) {
-                for (i in 0...Std.int(nativeArray.length)) {
-                    hxArray.push(nativeArray[i]);
+                var len:Int = nativeArray.length;
+                for (i in 0...len) {
+                    hxArray.push(Std.string(nativeArray[i]));
                 }
             }
             return hxArray;
@@ -50,26 +54,27 @@ class SAF {
     }
     
     public static function copyToInternal(uri:String, dest:String):Bool {
-    #if android
-    try {
-        if (_copyToInternal == null) {
-            _copyToInternal = JNI.createStaticMethod(
-                "extension/saf/SAFHelper",
-                "copyToInternal",
-                "(Ljava/lang/String;Ljava/lang/String;)Z"
-            );
-        }
-        if (_copyToInternal == null) return false;
+        #if android
+        try {
+            if (_copyToInternal == null) {
+                _copyToInternal = JNI.createStaticMethod(
+                    "extension/saf/SAFHelper",
+                    "copyToInternal",
+                    "(Ljava/lang/String;Ljava/lang/String;)Z"
+                );
+            }
+            if (_copyToInternal == null) return false;
 
-        return _copyToInternal(uri, dest);
-    } catch (e:Dynamic) {
+            return _copyToInternal(uri, dest);
+        } catch (e:Dynamic) {
+            return false;
+        }
+        #else
         return false;
-    }
-    #else
-    return false;
-    #end
+        #end
     }
 }
+
 @:keep
 class SAFCallback {
     var cb_ok:String->Void;
