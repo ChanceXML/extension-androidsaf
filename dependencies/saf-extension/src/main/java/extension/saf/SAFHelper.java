@@ -81,8 +81,7 @@ public class SAFHelper extends Extension {
         }
         return new String[0];
     }
-}
-
+    
     public static boolean copyToInternal(String uriString, String destPath) {
     try {
         Uri uri = Uri.parse(uriString);
@@ -111,5 +110,6 @@ public class SAFHelper extends Extension {
     } catch (Exception e) {
         android.util.Log.e("SAF", "copyToInternal failed: " + e);
         return false;
+        }
     }
 }
