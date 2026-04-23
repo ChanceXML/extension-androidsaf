@@ -82,3 +82,34 @@ public class SAFHelper extends Extension {
         return new String[0];
     }
 }
+
+    public static boolean copyToInternal(String uriString, String destPath) {
+    try {
+        Uri uri = Uri.parse(uriString);
+
+        InputStream in = Extension.mainContext.getContentResolver().openInputStream(uri);
+        if (in == null) return false;
+
+        File outFile = new File(destPath);
+        File parent = outFile.getParentFile();
+        if (parent != null && !parent.exists()) parent.mkdirs();
+
+        OutputStream out = new FileOutputStream(outFile);
+
+        byte[] buffer = new byte[8192];
+        int len;
+
+        while ((len = in.read(buffer)) > 0) {
+            out.write(buffer, 0, len);
+        }
+
+        in.close();
+        out.close();
+
+        return true;
+
+    } catch (Exception e) {
+        android.util.Log.e("SAF", "copyToInternal failed: " + e);
+        return false;
+    }
+}
