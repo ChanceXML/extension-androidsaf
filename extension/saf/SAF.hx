@@ -6,6 +6,7 @@ import lime.system.JNI;
 
 class SAF {
     #if android
+    private static var _copyToInternal:Dynamic;
     private static var _open_jni:Dynamic = null;
     private static var _list_jni:Dynamic = null;
     private static var _currentCallback:SAFCallback = null;
@@ -46,6 +47,14 @@ class SAF {
         }
         #end
         return [];
+    }
+    
+    public static function copyToInternal(uri:String, dest:String):Bool {
+        #if android
+        return _copyToInternal(uri, dest);
+        #else
+        return false;
+        #end
     }
 }
 
