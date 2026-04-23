@@ -8,6 +8,7 @@ class SAF {
     #if android
     private static var _open_jni:Dynamic = null;
     private static var _list_jni:Dynamic = null;
+    private static var _currentCallback:SAFCallback = null;
     #end
 
     public static function open(onResult:String->Void, onError:String->Void):Void {
@@ -15,9 +16,8 @@ class SAF {
         if (_open_jni == null) {
             _open_jni = JNI.createStaticMethod("extension/saf/SAFHelper", "openSAF", "(Lorg/haxe/lime/HaxeObject;)V");
         }
-        _open_jni(new SAFCallback(onResult, onError));
-        #else
-        onError("Platform not supported");
+        _currentCallback = new SAFCallback(onResult, onError);
+        _open_jni(_currentCallback);
         #end
     }
 
@@ -26,13 +26,21 @@ class SAF {
         if (_list_jni == null) {
             _list_jni = JNI.createStaticMethod("extension/saf/SAFHelper", "listFiles", "(Ljava/lang/String;)[Ljava/lang/String;");
         }
-        return _list_jni(uriString);
+        var nativeArray:Dynamic = _list_jni(uriString);
+        var hxArray:Array<String> = [];
+        if (nativeArray != null) {
+            for (i in 0...Std.int(nativeArray.length)) {
+                hxArray.push(nativeArray[i]);
+            }
+        }
+        return hxArray;
         #else
         return [];
         #end
     }
 }
 
+@:keep
 class SAFCallback {
     var cb_ok:String->Void;
     var cb_err:String->Void;
@@ -43,10 +51,14 @@ class SAFCallback {
     }
 
     public function onResult(uri:String):Void {
-        if (cb_ok != null) cb_ok(uri);
+        haxe.MainLoop.runInMainThread(function() {
+            if (cb_ok != null) cb_ok(uri);
+        });
     }
 
     public function onError(msg:String):Void {
-        if (cb_err != null) cb_err(msg);
+        haxe.MainLoop.runInMainThread(function() {
+            if (cb_err != null) cb_err(msg);
+        });
     }
 }
