@@ -57,7 +57,7 @@ public class SAFHelper extends Extension {
             } else {
                 if (callback != null) callback.call("onError", new Object[]{"User cancelled"});
             }
-            callback = null;
+            callback = null; // Clean up to avoid memory leaks
             return true;
         }
         return super.onActivityResult(requestCode, resultCode, data);
@@ -77,44 +77,46 @@ public class SAFHelper extends Extension {
                 String[] result = new String[files.length];
                 for (int i = 0; i < files.length; i++) {
                     String type = files[i].isDirectory() ? "true" : "false";
-                    result[i] = files[i].getName() + "|" + files[i].getUri().toString() + "|" + type;
+                    // Names can occasionally be null in SAF, fallback safely
+                    String name = files[i].getName() != null ? files[i].getName() : "unnamed";
+                    result[i] = name + "|" + files[i].getUri().toString() + "|" + type;
                 }
                 return result;
             }
         } catch (Exception e) {
-            return new String[0];
+            android.util.Log.e("SAFHelper", "listFiles failed: " + e.getMessage());
         }
         return new String[0];
     }
     
     public static boolean copyToInternal(String uriString, String destPath) {
-    try {
-        Uri uri = Uri.parse(uriString);
+        try {
+            if (Extension.mainContext == null) return false;
 
-        InputStream in = Extension.mainContext.getContentResolver().openInputStream(uri);
-        if (in == null) return false;
+            Uri uri = Uri.parse(uriString);
+            InputStream in = Extension.mainContext.getContentResolver().openInputStream(uri);
+            if (in == null) return false;
 
-        File outFile = new File(destPath);
-        File parent = outFile.getParentFile();
-        if (parent != null && !parent.exists()) parent.mkdirs();
+            File outFile = new File(destPath);
+            File parent = outFile.getParentFile();
+            if (parent != null && !parent.exists()) parent.mkdirs();
 
-        OutputStream out = new FileOutputStream(outFile);
+            OutputStream out = new FileOutputStream(outFile);
 
-        byte[] buffer = new byte[8192];
-        int len;
+            byte[] buffer = new byte[8192];
+            int len;
 
-        while ((len = in.read(buffer)) > 0) {
-            out.write(buffer, 0, len);
-        }
+            while ((len = in.read(buffer)) > 0) {
+                out.write(buffer, 0, len);
+            }
 
-        in.close();
-        out.close();
+            in.close();
+            out.close();
 
-        return true;
-
-    } catch (Exception e) {
-        android.util.Log.e("SAF", "copyToInternal failed: " + e);
-        return false;
+            return true;
+        } catch (Exception e) {
+            android.util.Log.e("SAFHelper", "copyToInternal failed: " + e.getMessage());
+            return false;
         }
     }
 }
