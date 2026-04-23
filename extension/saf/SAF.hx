@@ -13,30 +13,39 @@ class SAF {
 
     public static function open(onResult:String->Void, onError:String->Void):Void {
         #if android
-        if (_open_jni == null) {
-            _open_jni = JNI.createStaticMethod("extension/saf/SAFHelper", "openSAF", "(Lorg/haxe/lime/HaxeObject;)V");
+        try {
+            if (_open_jni == null) {
+                _open_jni = JNI.createStaticMethod("extension/saf/SAFHelper", "openSAF", "(Lorg/haxe/lime/HaxeObject;)V");
+            }
+            _currentCallback = new SAFCallback(onResult, onError);
+            if (_open_jni != null) _open_jni(_currentCallback);
+        } catch(e:Dynamic) {
+            if (onError != null) onError(Std.string(e));
         }
-        _currentCallback = new SAFCallback(onResult, onError);
-        _open_jni(_currentCallback);
         #end
     }
 
     public static function listFiles(uriString:String):Array<String> {
         #if android
-        if (_list_jni == null) {
-            _list_jni = JNI.createStaticMethod("extension/saf/SAFHelper", "listFiles", "(Ljava/lang/String;)[Ljava/lang/String;");
-        }
-        var nativeArray:Dynamic = _list_jni(uriString);
-        var hxArray:Array<String> = [];
-        if (nativeArray != null) {
-            for (i in 0...Std.int(nativeArray.length)) {
-                hxArray.push(nativeArray[i]);
+        try {
+            if (_list_jni == null) {
+                _list_jni = JNI.createStaticMethod("extension/saf/SAFHelper", "listFiles", "(Ljava/lang/String;)[Ljava/lang/String;");
             }
+            if (_list_jni == null) return [];
+            
+            var nativeArray:Dynamic = _list_jni(uriString);
+            var hxArray:Array<String> = [];
+            if (nativeArray != null) {
+                for (i in 0...Std.int(nativeArray.length)) {
+                    hxArray.push(nativeArray[i]);
+                }
+            }
+            return hxArray;
+        } catch(e:Dynamic) {
+            return [];
         }
-        return hxArray;
-        #else
-        return [];
         #end
+        return [];
     }
 }
 
